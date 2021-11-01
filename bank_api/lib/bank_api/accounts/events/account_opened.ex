@@ -1,0 +1,10 @@
+# lib/bank_api/accounts/events/account_opened.ex
+
+defmodule BankAPI.Accounts.Events.AccountOpened do
+  @derive [Jason.Encoder]
+
+  defstruct [
+    :account_uuid,
+    :initial_balance
+  ]
+end
