@@ -19,10 +19,10 @@ defmodule BankAPI.Application do
       # BankAPIWeb.Endpoint,
       # # Start a worker by calling: BankAPI.Worker.start_link(arg)
       # # {BankAPI.Worker, arg}
-
+      supervisor(BankAPI.CommandedApp, []),
       supervisor(BankAPI.Repo, []),
       supervisor(BankAPIWeb.Endpoint, []),
-      supervisor(Accounts.Projectors.AccountOpened, [], id: :account_opened)
+      supervisor(BankAPI.Accounts.Supervisor, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

@@ -2,7 +2,7 @@
 
 defmodule BankAPI.Accounts.Projectors.AccountOpened do
   use Commanded.Projections.Ecto,
-  application: BankAPI.Application,
+  application: BankAPI.CommandedApp,
   repo: BankAPI.Repo,
     name: "Accounts.Projectors.AccountOpened"
 
