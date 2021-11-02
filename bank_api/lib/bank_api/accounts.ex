@@ -10,39 +10,53 @@ defmodule BankAPI.Accounts do
   alias Ecto.Changeset
   alias BankAPI.Repo
   alias BankAPI.Router
-  alias BankAPI.Accounts.Commands.OpenAccount
+  alias BankAPI.Accounts.Commands.{OpenAccount, CloseAccount}
   alias BankAPI.Accounts.Projections.Account
 
-  def get_account(uuid), do: Repo.get!(Account, uuid)
+  def uuid_regex do
+    ~r/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/
+  end
 
-  def open_account(account_params) do
-    changeset = account_opening_changeset(account_params)
+  def get_account(id) do
+    case Repo.get(Account, id) do
+      %Account{} = account ->
+        {:ok, account}
 
-    if changeset.valid? do
-      account_uuid = UUID.uuid4()
+      _reply ->
+        {:error, :not_found}
+    end
+  end
 
-      dispatch_result =
-        %OpenAccount{
-          initial_balance: changeset.changes.initial_balance,
-          account_uuid: account_uuid
-        }
-        |> Router.dispatch()
+  def close_account(id) do
+    %CloseAccount{
+      account_uuid: id
+    }
+    |> BankAPI.CommandedApp.dispatch()
+  end
 
-      case dispatch_result do
-        :ok ->
-          {
-            :ok,
-            %Account{
-              uuid: account_uuid,
-              current_balance: changeset.changes.initial_balance
-            }
+  def open_account(%{"initial_balance" => initial_balance}) do
+
+    account_uuid = UUID.uuid4()
+
+    dispatch_result =
+      %OpenAccount{
+        initial_balance: initial_balance,
+        account_uuid: account_uuid
+      }
+      |> BankAPI.CommandedApp.dispatch()
+
+    case dispatch_result do
+      :ok ->
+        {
+          :ok,
+          %Account{
+            uuid: account_uuid,
+            current_balance: initial_balance
           }
+        }
 
-        reply ->
-          reply
-      end
-    else
-      {:validation_error, changeset}
+      reply ->
+        reply
     end
   end
 

@@ -6,5 +6,5 @@ defmodule BankAPI.CommandedApp do
       event_store: BankAPI.EventStore
     ]
 
-  # router(BankAPI.CommandedRouter)
+  router(BankAPI.Router)
 end
